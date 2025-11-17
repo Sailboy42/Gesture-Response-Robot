@@ -1,55 +1,30 @@
 import cv2
-import time
 
+# Open the default camera
+cam = cv2.VideoCapture(0)
 
-def camera_move():
-    
-    """
-    Continuously captures webcam frames, checks once per second whether a phone
-    screen is detected, and if so, runs glare detection on the frame. Prints
-    whether glare is present and the glare coverage score. If a GUI backend is
-    available, displays the live webcam feed and allows quitting with 'q'.
+# Get the default frame width and height
+frame_width = int(cam.get(cv2.CAP_PROP_FRAME_WIDTH))
+frame_height = int(cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    Handles both GUI and headless environments, and stops cleanly on Ctrl+C.
-    """
- 
-    cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        print("Could not open webcam.")
-        return
+# Define the codec and create VideoWriter object
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+out = cv2.VideoWriter('output.mp4', fourcc, 20.0, (frame_width, frame_height))
 
-    print("Running. Press 'q' in the window to quit (or Ctrl+C if headless).")
-    last = 0.0
-    use_window = True  # try GUI once
+while True:
+    ret, frame = cam.read()
 
-    try:
-        while True:
-            ok, frame = cap.read()
-            if not ok:
-                print("Failed to grab frame.")
-                break
-            
-            # screen and glare detection every 1 sec
-            if time.time() - last >= 1.0:
-                last = time.time()
-                
+    # Write the frame to the output file
+    out.write(frame)
 
-            # showing webcam feed
-            if use_window:
-                try:
-                    cv2.imshow("Webcam (q to quit)", frame)
-                    if cv2.waitKey(1) & 0xFF == ord("q"):
-                        break
-                except cv2.error as e:
-                    print("No GUI backend available; switching to headless mode.")
-                    use_window = False
+    # Display the captured frame
+    cv2.imshow('Camera', frame)
 
-    except KeyboardInterrupt:
-        print("\nStopping…")
-    finally:
-        cap.release()
-        if use_window:
-            cv2.destroyAllWindows()
+    # Press 'q' to exit the loop
+    if cv2.waitKey(1) == ord('q'):
+        break
 
-
-camera_move()
+# Release the capture and writer objects
+cam.release()
+out.release()
+cv2.destroyAllWindows()
