@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gesture Response Robot</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1 class="logo">Gesture Response Robot — Project Report</h1>
+      <button id="menuBtn" class="menu-btn" aria-label="Toggle menu">☰</button>
+      <nav id="mainNav" class="main-nav">
+        <a href="#report">Report</a>
+        <a href="#updates">Updates</a>
+        <a href="#resources">Resources</a>
+        <a href="https://github.com/Sailboy42/Gesture-Response-Robot" target="_blank" rel="noopener">Repo</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="report" class="report container">
+      <h2 id="report-proposal">Project report</h2>
+      <p>This site is a static project report for the Gesture Response Robot repository. It includes the final project, background, goals, milestones, risks, and the updates log.</p>
+
+      <nav class="toc" aria-label="Table of contents">
+        <strong>Contents</strong>
+        <ul>
+          <li><a href="#report-proposal">Proposal</a></li>
+          <li><a href="#milestones">Milestones</a></li>
+          <li><a href="#risks">Risks</a></li>
+          <li><a href="#updates">Updates</a></li>
+          <li><a href="#resources">Resources</a></li>
+        </ul>
+      </nav>
+
+      <section id="proposal">
+        <h3>Final Project Proposal — Gesture Neato</h3>
+
+        <h4>Team</h4>
+        <p>Khoi, Tabby, Owen, Bhargavi</p>
+
+        <h4>Main idea</h4>
+        <p>The main idea is to use a Neato that can read a person’s hand gestures to do certain functions (for example: a stop hand to make the Neato stop, circling your finger for it to spin, or a snapshot motion for the Neato to take a photo).</p>
+
+        <h4>Motivation & applications</h4>
+        <p>This project was inspired by motivations to create something useful, fun, and interesting that combines computer vision and Neato movement. The project is well-scoped and iterable. By splitting responsibilities by gesture, the team can scale development incrementally. Baseline ideas include a gesture that makes the Neato follow a person and a gesture to take a photo.</p>
+
+        <h4>Topics, frameworks and algorithms</h4>
+        <ul>
+          <li>Computer vision (external camera or on-robot camera) for gesture recognition.</li>
+          <li>Machine vision / ML algorithms (e.g., MediaPipe, TensorFlow / TensorFlow.js) for hand/gesture detection and classification.</li>
+          <li>ROS integration for camera feeds, command publishing, and robot control.</li>
+          <li>Path planning and obstacle avoidance (ROS navigation stack or lightweight reactive algorithms).</li>
+        </ul>
+
+        <h4>MVP and stretch goals</h4>
+        <p><strong>MVP:</strong> A Neato that follows a person (one gesture for follow) and supports at least one additional gesture (e.g., take photo) with a camera feed available to a laptop.</p>
+        <p><strong>Stretch goals:</strong> Additional gestures, autonomous path creation based on commands, and a self-contained camera (wireless or carried by the Neato) so it doesn't need to be plugged into a laptop.</p>
+      </section>
+
+      <details id="milestones">
+        <summary><strong>Milestones (click to expand)</strong></summary>
+        <ol>
+          <li><strong>Week 1</strong>: Visual data visible in the ROS environment; basic hand movement detection; get camera feed working on the Neato or a mounted camera.</li>
+          <li><strong>Week 2</strong>: Begin machine vision/gesture training; low recognition success initially; wire up programmed actions from gesture recognition.</li>
+          <li><strong>Week 3</strong>: Improve gesture recognition to an acceptable rate; code Neato actions so gestures map to physical behaviors.</li>
+          <li><strong>Final</strong>: Neato demonstrates object avoidance during programmed actions and stable gesture-to-action mapping.</li>
+        </ol>
+      </details>
+
+      <details id="risks">
+        <summary><strong>Pre-mortem: Risks (click to expand)</strong></summary>
+        <p>Key risks to project success:</p>
+        <ul>
+          <li>Difficulty getting a reliable camera feed on the Neato and recognizing gestures in a live feed.</li>
+          <li>Being overambitious with the number of gestures and scope.</li>
+          <li>Integration complexity when combining all individual gestures and software components.</li>
+          <li>Ambiguity between similar gestures and variability in how people perform gestures.</li>
+          <li>Hardware limitations, such as acquiring a networked camera or mounting a camera on the Neato.</li>
+        </ul>
+      </details>
+
+    </section>
+
+    <section id="updates" class="updates container">
+      <h2>Updates</h2>
+      <!-- UPDATES-START -->
+<article class="update"><time datetime="2025-11-17">2025-11-17</time>
+<h1>Initial static report site</h1>
+<p>Added a simple static website to host the project report and project updates. This replaces the previous demo-focused homepage.</p></article>
+<!-- UPDATES-END -->
+    </section>
+
+    <section id="resources" class="resources container">
+      <h2>Resources & links</h2>
+      <ul>
+        <li><a href="https://github.com/Sailboy42/Gesture-Response-Robot" target="_blank" rel="noopener">Repository on GitHub</a></li>
+        <li>Use the repository Issues for tracking tasks and requests.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">© Gesture Response Robot — built for demos</div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
