@@ -1,50 +1,18 @@
-/* Simple responsive stylesheet for Gesture Response Robot demo */
 :root{--bg:#071021;--card:#071826;--accent:#38bdf8;--muted:#9fb0c7}
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Segoe UI, Roboto, Arial, sans-serif;background:var(--bg);color:#e6eef8}
+html,body{height:100%;margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#e6eef8}
 .container{max-width:900px;margin:0 auto;padding:1.25rem}
-.site-header{background:transparent;padding:0.5rem 0}
+.site-header{padding:0.5rem 0}
 .site-header .container{display:flex;align-items:center;gap:1rem}
-.logo{margin:0;font-size:1.05rem;font-weight:600}
-.menu-btn{display:none;background:none;border:1px solid rgba(255,255,255,0.04);color:inherit;padding:0.45rem;border-radius:6px}
-.main-nav{margin-left:auto;display:flex;gap:0.75rem;align-items:center}
-.main-nav a{color:var(--muted);text-decoration:none;padding:0.25rem 0.5rem;border-radius:6px;font-size:0.95rem}
+.logo{margin:0;font-weight:600}
+.menu-btn{display:none;background:none;border:1px solid rgba(255,255,255,0.04);color:inherit;padding:0.35rem;border-radius:6px}
+.main-nav{margin-left:auto;display:flex;gap:0.5rem;align-items:center}
+.main-nav a{color:var(--muted);text-decoration:none;padding:0.2rem 0.4rem;border-radius:6px;font-size:0.95rem}
 .main-nav a:hover{color:var(--accent)}
-
-.report, .updates, .resources{background:rgba(255,255,255,0.02);padding:1.25rem;border-radius:10px;margin:1.25rem 0}
-.report h2, .updates h2, .resources h2{margin-top:0}
-.report p, .updates p, .resources p{color:var(--muted);line-height:1.5}
-.report ul, .resources ul{color:var(--muted)}
-.updates .update{border-top:1px solid rgba(255,255,255,0.03);padding-top:0.75rem;margin-top:0.75rem}
-.updates time{color:var(--muted);font-size:0.88rem}
-.updates h4{margin:0.25rem 0}
-
-/* Footer */
+.report,.resources{background:rgba(255,255,255,0.02);padding:1rem;border-radius:8px;margin:1rem 0}
+.toc{background:rgba(255,255,255,0.02);padding:0.6rem;border-left:4px solid rgba(56,189,248,0.06);margin:1rem 0;border-radius:6px}
+.toc ul{list-style:none;padding-left:0;margin:0.4rem 0}
+details[open]{background:rgba(255,255,255,0.015);padding:0.6rem;border-radius:6px}
+details summary{cursor:pointer}
 .site-footer{padding:1rem 0;text-align:center;color:var(--muted)}
-
-/* Responsive */
-@media (max-width:880px){
-  .main-nav{position:absolute;top:64px;right:12px;display:none;flex-direction:column;background:var(--card);padding:0.5rem;border-radius:8px}
-  .menu-btn{display:inline-block;margin-left:auto}
-  .main-nav.show{display:flex}
-}
-
-/* Table of contents */
-.toc{background:rgba(255,255,255,0.02);padding:0.75rem;border-left:4px solid rgba(56,189,248,0.06);margin:1rem 0;border-radius:6px}
-.toc ul{list-style:none;padding-left:0;margin:0.5rem 0}
-.toc li{margin:0.25rem 0}
-.toc a{color:var(--muted);text-decoration:none}
-.toc a:hover{color:var(--accent)}
-
-details[open]{background:rgba(255,255,255,0.015);padding:0.75rem;border-radius:6px}
-details summary{cursor:pointer;outline:none}
-
-/* back to top */
-.back-to-top{display:block;text-align:right;font-size:0.9rem;color:var(--muted);text-decoration:none;margin-top:0.5rem}
-.back-to-top:hover{color:var(--accent)}
-
-/* update entry enhancements */
-.update .meta{color:var(--muted);font-size:0.9rem;margin:0.25rem 0}
-.update .summary{color:var(--muted);margin:0.5rem 0}
-.update-image-wrap{margin:0.5rem 0}
-.update-image{max-width:100%;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.04)}
+@media (max-width:880px){.main-nav{position:absolute;top:64px;right:12px;display:none;flex-direction:column;background:var(--card);padding:0.5rem;border-radius:8px}.menu-btn{display:inline-block}.main-nav.show{display:flex}}
