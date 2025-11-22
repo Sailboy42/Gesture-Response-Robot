@@ -1,1 +1,0 @@
-No runtime build dependencies required (updates feature removed)

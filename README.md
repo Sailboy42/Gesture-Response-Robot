@@ -16,5 +16,3 @@ Quick preview:
 ```bash
 python -m http.server 8000
 ```
-
-The updates-as-markdown workflow has been removed.
