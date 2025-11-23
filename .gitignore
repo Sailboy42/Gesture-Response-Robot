@@ -10,6 +10,13 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+
+# Python caches / test output
+.mypy_cache/
+.pytest_cache/
+coverage/
+htmlcov/
+pip-wheel-metadata/
 *.local
 
 # Node / build
@@ -17,6 +24,11 @@ node_modules/
 dist/
 docs/dist/
 site/
+
+# Vite / docs build
+docs/node_modules/
+docs/.vite/
+docs/build/
 .cache/
 
 # Python
