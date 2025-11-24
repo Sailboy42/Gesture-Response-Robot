@@ -6,24 +6,27 @@ const Milestones = () => {
       number: 1,
       title: "Camera Integration & Real-Time Hand Tracking",
       date: "Week 1 - Completed",
-      description: "Using OpenCV, we created a real-time hand tracking system. The HandTracker class processes webcam video to detect and track a hand using computer vision, establishing a strong foundation for future gesture recognition.",
+  description: "This past week, we focused on getting the camera feed working. We purchased a 1-meter ribbon cable that's compatible with the Neato's camera, and we've now managed to bring the feed up in rqt. Our next step is figuring out how to save that feed as a bag file for further testing. In the meantime, we also have code running that uses a regular webcam so the team can continue development until we have access to the Neato again after break. Using OpenCV, we created a real-time hand tracking system that processes video to detect and track hands, establishing a strong foundation for future gesture recognition.",
       achievements: [
+        "Successfully purchased and connected 1-meter ribbon cable compatible with Neato's camera",
+        "Camera feed successfully brought up in rqt for visualization",
+        "Backup webcam code implemented for continued development during break",
         "HandTracker class implemented with OpenCV",
         "Skin detection using HSV color space filtering to identify skin regions",
         "Contour detection finds largest contour and filters out small noise regions",
         "Real-time visualization with detected hand contour overlaid on video feed",
         "Debug view displays skin detection mask for system monitoring",
-        "Live video frame processing with noise reduction filters",
-        "Green contour successfully drawn around detected hand"
+        "Researched two gesture recognition methods: Keypoint-Based Tracking (finger tip keypoints with position/angle comparison) and Contour/Convex Hull Analysis (hand segmentation with convexity defect detection)"
       ],
       challenges: [
+        "Working on saving camera feed as bag file for further testing",
         "Camera mounting and positioning for optimal hand detection",
         "Tuning HSV color space thresholds for accurate skin detection",
         "Filtering out noise while maintaining hand contour accuracy",
         "Synchronizing camera feed with ROS environment",
-        "Optimizing performance for real-time processing"
+        "Comparing gesture recognition approaches: keypoint-based vs. convex hull analysis"
       ],
-      goals: "✓ Real-time hand tracking system operational / ✓ Skin detection working / ✓ Hand contour visualization complete"
+      goals: "✓ Camera feed operational in rqt / ✓ Webcam backup system ready / ✓ Real-time hand tracking working / ⏳ Save feed as bag file"
     },
     {
       number: 2,
