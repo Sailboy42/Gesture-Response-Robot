@@ -6,6 +6,7 @@ const Milestones = () => {
       number: 1,
       title: "Camera Integration & Real-Time Hand Tracking",
       date: "Week 1 - Completed",
+
   description: "This past week, we focused on getting the camera feed working. We purchased a 1-meter ribbon cable that's compatible with the Neato's camera, and we've now managed to bring the feed up in rqt. Our next step is figuring out how to save that feed as a bag file for further testing. In the meantime, we also have code running that uses a regular webcam so the team can continue development until we have access to the Neato again after break. Using OpenCV, we created a real-time hand tracking system that processes video to detect and track hands, establishing a strong foundation for future gesture recognition.",
       achievements: [
         "Successfully purchased and connected 1-meter ribbon cable compatible with Neato's camera",

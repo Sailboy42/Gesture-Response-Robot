@@ -13,7 +13,12 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      {/* Use Vite's base when running under a repository site (GitHub Pages).
+          import.meta.env.BASE_URL is set from Vite's `base` option and will be
+          '/Gesture-Response-Robot/' in production. Setting BrowserRouter's
+          basename ensures route matching works when the app is hosted from a
+          subpath. */}
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path="/" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
