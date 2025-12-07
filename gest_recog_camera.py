@@ -14,11 +14,16 @@ from cv_bridge import CvBridge, CvBridgeError
 # -------------- MediaPipe setup --------------
 
 # Callback function to print result of gesture recognition
-def print_result(result, output_image, timestamp_ms):
+def print_result(result):
+    global latest_gesture
+
     if result.gestures:
         category = result.gestures[0][0]
         name = category.category_name
-        print(f"Gesture: {name}")
+        latest_gesture = f"Gesture: {name}"
+        print(latest_gesture)
+    else:
+        latest_gesture = "None"
 
 model_path = '/home/tabby305/Downloads/gesture_recognizer.task'
 
