@@ -10,15 +10,27 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
+from take_picture import save_fist
 
 # -------------- MediaPipe setup --------------
 
+current_gesture = None  
+
 # Callback function to print result of gesture recognition
-def print_result(result, output_image, timestamp_ms):
+def print_result(result, output_image, timestamp_ms):  
+    global current_gesture
     if result.gestures:
         category = result.gestures[0][0]
         name = category.category_name
+        current_gesture = name     #store gesture
         print(f"Gesture: {name}")
+    else:
+        current_gesture = None
+
+    if current_gesture == "Closed_Fist":
+        save_fist(output_image=output_image, timestamp_ms=timestamp_ms)
+
+
 
 model_path = '/home/tabby305/Downloads/gesture_recognizer.task'
 
@@ -76,7 +88,7 @@ class GestureRecognizerNode(Node):
 
         frame_timestamp_ms = int((time.time() - start_time) * 1000)
 
-        # Run recognizer asynchronously
+        # Run recognizer async
         recognizer.recognize_async(mp_image, frame_timestamp_ms)
 
         # Show the frame 
@@ -103,6 +115,8 @@ def main():
         cv.destroyAllWindows()
         rclpy.shutdown()
 
+    return current_gesture  
+
 
 if __name__ == '__main__':
-    main()
+    print(main())  
