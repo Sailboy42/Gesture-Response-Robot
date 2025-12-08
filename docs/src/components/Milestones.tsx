@@ -31,25 +31,26 @@ const Milestones = () => {
     },
     {
       number: 2,
-      title: "Machine Vision Training & Action Programming",
-      date: "Week 2 - Planned",
-      description: "Next, we will analyze the hand contour to detect individual fingers and the hand center, enabling gesture recognition. We'll train machine vision algorithms to recognize specific gestures and map them to programmed Neato actions.",
+      title: "MediaPipe Integration & FSM Implementation",
+      date: "Week 2 - Completed",
+      description: "We implemented Google AI's MediaPipe Model to take live camera footage and recognize predetermined gestures. We began by using the computer webcam footage from the previous milestone and converting each frame into images in a format that could be received as input by the MediaPipe Model. We then adjusted the output of the model to give only the relevant output for our project—the gesture identified. After a few iterations, we were able to get the model to successfully detect and output the set of 7 gestures when an individual's hand was identified in frame. The gesture detected output serves as input and triggers for the Neato's finite state machine.",
       achievements: [
-        "Finger detection from hand contour analysis",
-        "Hand center point calculation",
-        "Gesture recognition algorithm for stop, circle, and snapshot motions",
-        "Gesture-to-action mapping system implementation",
-        "ROS action server configured for Neato commands",
-        "Initial Neato actions programmed and tested"
+        "Integrated PiCamera and long ribbon cable—both now work seamlessly with the gesture-analysis pipeline",
+        "Combined gesture analyzer and PiCamera code so gestures are correctly detected and passed into the FSM to trigger state changes",
+        "Successfully added functionality to capture and save an image to Downloads when fist gesture is recognized",
+        "Implemented Google AI's MediaPipe Model for gesture recognition",
+        "Converted webcam frames to MediaPipe-compatible image format",
+        "Model successfully detects and outputs 7 predetermined gestures",
+        "Gesture output integrated as triggers for Neato's finite state machine"
       ],
       challenges: [
-        "Accurately detecting individual fingers from contour data",
-        "Differentiating between similar hand poses",
-        "Handling variance in how people perform gestures",
-        "Balancing recognition speed vs. accuracy",
-        "Integrating gesture recognition with robot control"
+        "Converting video frames to MediaPipe-compatible format",
+        "Filtering model output to only relevant gesture data",
+        "Iterating on model parameters for reliable gesture detection",
+        "Synchronizing PiCamera feed with gesture analysis pipeline",
+        "Mapping gesture outputs to FSM state transitions"
       ],
-      goals: "⏳ Finger and center detection / ⏳ Gesture recognition working / ⏳ Neato responds to gestures"
+      goals: "✓ PiCamera integrated with pipeline / ✓ MediaPipe gesture recognition working / ✓ 7 gestures detected / ✓ FSM triggers functional"
     },
     {
       number: 3,
