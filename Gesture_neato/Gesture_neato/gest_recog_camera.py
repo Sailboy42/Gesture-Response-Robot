@@ -10,7 +10,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from std_msgs.msg import String
-from take_picture import save_fist
+#from take_picture import save_fist
 
 #from take_picture import save_fist
 
@@ -19,8 +19,8 @@ from take_picture import save_fist
 current_gesture = None  
 
 
-#model_path = '/home/tabby305/Downloads/gesture_recognizer.task'
-model_path = '/home/bhargavi/Downloads/gesture_recognizer.task'
+model_path = '/home/tabby305/Downloads/gesture_recognizer.task'
+#model_path = '/home/bhargavi/Downloads/gesture_recognizer.task'
 # GestureRecognizer = mp.tasks.vision.GestureRecognizer
 # GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
 # GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
@@ -77,15 +77,18 @@ class GestureRecognizerNode(Node):
         self.first_frame = False
         self.get_logger().info('Gesture recognizer node started. Listening on /camera/image_raw')
 
-    def print_result(self, result, output_image, timestamp_ms):  
-        global current_gesture
+    def print_result(self, result, output_image, timestamp_ms):
         if result.gestures:
             category = result.gestures[0][0]
             name = category.category_name
-            current_gesture = name     #store gesture
-            self.gespub.publish(String(data=result))
-        if current_gesture == "Closed_Fist":
-            save_fist(output_image=output_image, timestamp_ms=timestamp_ms)
+        else:
+            name = ""
+
+        # publish a real string
+        self.gespub.publish(String(data=name))
+
+        # optional: debug
+        self.get_logger().info(f"Gesture: {name}")
 
     def image_callback(self, msg):
         try:
@@ -97,6 +100,8 @@ class GestureRecognizerNode(Node):
         if not self.first_frame:
             self.get_logger().info("Received first frame from camera topic")
             self.first_frame = True
+
+        
 
         # Convert frame to RGB for MediaPipe
         rgb_frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
@@ -121,7 +126,7 @@ def main():
     cv.namedWindow('frame', cv.WINDOW_NORMAL)
 
     node = GestureRecognizerNode()
-
+    
     try:
         rclpy.spin(node)
     finally:

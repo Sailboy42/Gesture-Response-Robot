@@ -23,8 +23,9 @@ setup(
         ],
     },
     entry_points={
-        'console_scripts': [
-            'Gesture_FSM = Gesture_neato.Gesture_FSM:main'
-        ],
-    },
+    'console_scripts': [
+        'gesture_fsm = Gesture_neato.Gesture_neato.Gesture_FSM:main',
+        'gest_recog_camera = Gesture_neato.Gesture_neato.gest_recog_camera:main',
+    ],
+},
 )

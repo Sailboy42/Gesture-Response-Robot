@@ -20,6 +20,7 @@ class Gestures(Node):
             self.gesture_cb,
             10
         )
+       
 
         self.cmd_vel_sub = self.create_subscription(
             Twist,
@@ -42,8 +43,10 @@ class Gestures(Node):
     def gesture_cb(self, msg: String):
         """React to gestures"""
         gesture = msg.data
+        print("reaching gesture")
 
         if gesture == "Thumbs Up":
+            print('speeding up')
             self.speed_up()
         elif gesture == "Thumbs Down":
             self.slow_down()
@@ -85,10 +88,12 @@ class Gestures(Node):
 
 def main():
     rclpy.init()
+    print("starting FSM")
     node = Gestures()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
+    
 
 
 if __name__ == '__main__':
