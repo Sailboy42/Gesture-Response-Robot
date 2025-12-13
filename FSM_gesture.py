@@ -6,29 +6,46 @@ from geometry_msgs.msg import Twist, PointStamped, Point
 from std_msgs.msg import Header
 import math, time
 
+
 class FSM(Node):
     """A signel node ros2 program that transforms a neato into the
     ultimate law keeping device: aka. THE SHERIFF"""
 
     def __init__(self):
         # Name the node discoverable
-        super().__init__('sheriff_fsm')
+        super().__init__("sheriff_fsm")
 
         # global variables
-        self.state = 0 # the state handler variable. 0: star, 1: chase, 2: 
-                        #lookout
-        self.last_state = 0 # records the previous state to see if states have 
-                            #changed
-        self.timepost = 0 # the time lookout() state change in ms
-        self.buffer = 500 # the time of a lookout() swing in ms
-        self.proximity = 1 # the distance of detecting to chase in m
-        self.closest_dist = 0; # the distance of a person in range
-        self.closest_dist_rad = 0.0; # the angle of a person in range
+        self.state = 0  # the state handler variable. 0: star, 1: chase, 2:
+        # lookout
+        self.last_state = 0  # records the previous state to see if states have
+        # changed
+        self.timepost = 0  # the time lookout() state change in ms
+        self.buffer = 500  # the time of a lookout() swing in ms
+        self.proximity = 1  # the distance of detecting to chase in m
+        self.closest_dist = 0
+        # the distance of a person in range
+        self.closest_dist_rad = 0.0
+        # the angle of a person in range
+
+        # Person tracker variables (camera-based tracking)
+        self.person_visible_camera = False  # Whether person is detected by camera
+        self.person_angle_camera = 0.0  # Angle from camera in radians
+        self.person_offset_x = 0.0  # X offset in pixels
+        self.person_offset_y = 0.0  # Y offset in pixels
+        self.last_tracker_update = 0.0  # Timestamp of last tracker update
+        self.tracker_timeout = (
+            0.5  # Timeout in seconds (if no update for 0.5s, assume person lost)
+        )
 
         # pubs & subs
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
-        self.create_subscription(LaserScan, 'scan', self.get_scan, 10)
-        
+        self.vel_pub = self.create_publisher(Twist, "cmd_vel", 10)
+        self.create_subscription(LaserScan, "scan", self.get_scan, 10)
+        # Subscribe to person tracker position data
+        self.create_subscription(
+            PointStamped, "/human_tracker/position", self.person_tracker_callback, 10
+        )
+
         # Run threads
         self.create_timer(0.1, self.run_threads)
 
@@ -41,7 +58,7 @@ class FSM(Node):
 
     def run_loop(self):
         """run the robot states when there is a state change."""
-        
+
         if self.state == 1 or self.state != self.last_state:
             self.last_state = self.state
             # run the current state
@@ -61,8 +78,8 @@ class FSM(Node):
                     msg.angular.z = 0.0
                     self.vel_pub.publish(msg)
                     self.lookout()
-        
-    def state_handler(self): 
+
+    def state_handler(self):
         """Handles transitions between states"""
         # find the closest lidar distance
         lidar_dist = self.closest_dist
@@ -70,31 +87,29 @@ class FSM(Node):
         # transitions between FSM
         if lidar_dist < self.proximity:
             self.state = 1
-        elif (self.state == 1 and lidar_dist > self.proximity):
+        elif self.state == 1 and lidar_dist > self.proximity:
             self.state = 2
-        elif (self.state == 2):
+        elif self.state == 2:
             self.state = 0
 
-
-    def star(self): 
+    def star(self):
         """Makes the robot move in star pattern
-            forward_speed: speed to move forward in m/s
-            turn_speed: the speed in rad/s to turn
-            edge_length: the lenght of the edge of the star pattern
-            dt: stall time""" 
+        forward_speed: speed to move forward in m/s
+        turn_speed: the speed in rad/s to turn
+        edge_length: the lenght of the edge of the star pattern
+        dt: stall time"""
         # Parameters
-        forward_speed = 0.25                 # m/s
-        turn_speed    = 0.65                 # rad/s
-        edge_length   = 0.6                  # meters per star edge
-        turn_angle    = math.radians(144.0)  # 144° turn for star
-        heading_deg   = 36                   # rotate so one point faces up
-        dt            = 0.02                 
+        forward_speed = 0.25  # m/s
+        turn_speed = 0.65  # rad/s
+        edge_length = 0.6  # meters per star edge
+        turn_angle = math.radians(144.0)  # 144° turn for star
+        heading_deg = 36  # rotate so one point faces up
+        dt = 0.02
 
         def drive(lin, ang, duration_s):
-            """Publish velocity (lin, ang) for duration_s seconds, then stop.
-            """
+            """Publish velocity (lin, ang) for duration_s seconds, then stop."""
             msg = Twist()
-            msg.linear.x  = lin
+            msg.linear.x = lin
             msg.angular.z = ang
             end_time = time.time() + duration_s
             while self.state == 0 and time.time() < end_time:
@@ -112,43 +127,66 @@ class FSM(Node):
 
         # Draw the 5 edges
         for i in range(5):
-            if (self.state == 0):
+            if self.state == 0:
                 drive(forward_speed, 0.0, edge_length / forward_speed)
                 drive(0.0, turn_speed, turn_angle / turn_speed)
 
-    def chase(self): 
+    def chase(self):
         """uses a simple weighted distance equation to move towards an object
-        or individual.
+        or individual. Uses both lidar and camera-based person tracking.
             Kp: the max forward speed to be scaled
             max_turn_speed: the max speed to to turn rad/s
             dt: the stall time
             target_distance: the distance at which the robot stops
-            """
-            
+        """
+
         # Makes robot chase a person
-         # Parameters
-        max_turn_speed    = 0.1                # rad/s
-        dt = .02                                # sleep time
-        Kp = .4                                 # max lin speed
-        target_distance = .25                   # where robot stops
+        # Parameters
+        max_turn_speed = 0.1  # rad/s
+        dt = 0.02  # sleep time
+        Kp = 0.4  # max lin speed
+        target_distance = 0.25  # where robot stops
+
+        # Check if tracker data is stale (timeout)
+        current_time = time.time()
+        if current_time - self.last_tracker_update > self.tracker_timeout:
+            self.person_visible_camera = False
 
         msg = Twist()
-        msg.linear.x = Kp*(self.closest_dist - target_distance)
-        msg.angular.z = max_turn_speed * (self.closest_dist_rad)
+        msg.linear.x = Kp * (self.closest_dist - target_distance)
+
+        # Use camera angle if person is visible and data is fresh, otherwise fall back to lidar
+        if (
+            self.person_visible_camera
+            and (current_time - self.last_tracker_update) < self.tracker_timeout
+        ):
+            # Use camera-based angle for more accurate turning
+            # Camera angle is more precise for visual tracking
+            msg.angular.z = max_turn_speed * self.person_angle_camera
+            self.get_logger().debug(
+                f"Chase: Using camera angle: {math.degrees(self.person_angle_camera):.1f}°"
+            )
+        else:
+            # Fall back to lidar angle if camera doesn't see person or data is stale
+            msg.angular.z = max_turn_speed * (self.closest_dist_rad)
+            self.get_logger().debug(
+                f"Chase: Using lidar angle: {math.degrees(self.closest_dist_rad):.1f}°"
+            )
+
         self.vel_pub.publish(msg)
         time.sleep(dt)
 
-    def lookout(self): 
+    def lookout(self):
         """Turns the robot 120 degrees left and right to make the robot look
         confused after losing the individual being chased.
             turn_speed: the speed in m/s to turn
-            turn_angle: the amount for the robot to turn (120 degrees) in 
+            turn_angle: the amount for the robot to turn (120 degrees) in
                         radians.
             dt: the stall time"""
         # Parameters
-        turn_speed = 0.35                 # rad/s
+        turn_speed = 0.35  # rad/s
         turn_angle = math.radians(120.0)  # 120° in radians
-        dt         = 0.02                 # sleep time 
+        dt = 0.02  # sleep time
 
         def turn(ang_vel, duration_s):
             """Publish angular velocity for duration_s seconds, then stop."""
@@ -185,23 +223,50 @@ class FSM(Node):
             average_dividend: the amount to divide filtered_dist_av and
                             filtered_ang_av to become an actual average."""
         # len(msg.ranges) = 361
-        lower_post = .25 #distance in meters to filter below
-        upper_post = self.proximity #distance in meters to filter above
-        filtered_dist_av = 0; #point cluster total distance to be averaged
-        filtered_ang_av = 0; #point cluster total angle to be averaged
-        average_dividend = 0;
+        lower_post = 0.25  # distance in meters to filter below
+        upper_post = self.proximity  # distance in meters to filter above
+        filtered_dist_av = 0
+        # point cluster total distance to be averaged
+        filtered_ang_av = 0
+        # point cluster total angle to be averaged
+        average_dividend = 0
         for i in range(len(msg.ranges) - 1):
             if lower_post < msg.ranges[i] and msg.ranges[i] < upper_post:
                 filtered_dist_av = filtered_dist_av + msg.ranges[i]
-                filtered_ang_av = filtered_ang_av + i 
+                filtered_ang_av = filtered_ang_av + i
                 average_dividend = average_dividend + 1
-        
-        if(average_dividend != 0):
+
+        if average_dividend != 0:
             self.closest_dist = filtered_dist_av / average_dividend
-            self.closest_dist_rad = ((filtered_ang_av / average_dividend)/360) * (2 * math.pi)
+            self.closest_dist_rad = ((filtered_ang_av / average_dividend) / 360) * (
+                2 * math.pi
+            )
         else:
             self.closest_dist = self.proximity + 1
             self.closest_dist_rad = 0
+
+    def person_tracker_callback(self, msg):
+        """
+        Callback for person tracker position updates from camera.
+        Updates camera-based tracking variables.
+
+        Args:
+            msg: PointStamped message with:
+                - point.x: X offset in pixels (positive = right)
+                - point.y: Y offset in pixels (positive = down)
+                - point.z: Angle in radians (positive = right)
+        """
+        self.person_visible_camera = True
+        self.person_angle_camera = msg.point.z  # Angle in radians
+        self.person_offset_x = msg.point.x  # X offset in pixels
+        self.person_offset_y = msg.point.y  # Y offset in pixels
+        self.last_tracker_update = time.time()  # Update timestamp
+
+        self.get_logger().debug(
+            f"Person tracker: angle={math.degrees(self.person_angle_camera):.1f}°, "
+            f"offset=({self.person_offset_x:.0f}, {self.person_offset_y:.0f})"
+        )
+
 
 def main(args=None):
     rclpy.init(args=args)
