@@ -19,8 +19,8 @@ from take_picture import save_fist
 current_gesture = None  
 
 
-model_path = '/home/tabby305/Downloads/gesture_recognizer.task'
-
+#model_path = '/home/tabby305/Downloads/gesture_recognizer.task'
+model_path = '/home/bhargavi/Downloads/gesture_recognizer.task'
 # GestureRecognizer = mp.tasks.vision.GestureRecognizer
 # GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
 # GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
