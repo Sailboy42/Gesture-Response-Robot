@@ -79,3 +79,11 @@ npm run dev
 ```bash
 python3 hand_track.py
 ```
+
+## Dataset Samples
+
+A small `dataset_samples/` folder is included for visualization only.
+It contains a few randomly selected images per class and is **not**
+used for training.
+
+The full dataset is excluded due to size and licensing considerations.
