@@ -7,7 +7,7 @@
   <maintainer email="tdavison@olin.edu">tabby305</maintainer>
   <license>TODO: License declaration</license>
 
-  <depend>rclpy<depend>
+  <depend>rclpy</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
