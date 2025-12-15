@@ -1,6 +1,0 @@
-source;share/Gesture_neato/hook/pythonpath.ps1
-source;share/Gesture_neato/hook/pythonpath.dsv
-source;share/Gesture_neato/hook/pythonpath.sh
-source;../../build/Gesture_neato/share/Gesture_neato/hook/pythonpath_develop.ps1
-source;../../build/Gesture_neato/share/Gesture_neato/hook/pythonpath_develop.dsv
-source;../../build/Gesture_neato/share/Gesture_neato/hook/pythonpath_develop.sh

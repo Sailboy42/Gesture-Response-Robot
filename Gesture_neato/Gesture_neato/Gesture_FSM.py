@@ -1,105 +1,135 @@
+#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from time import sleep
 import math
+import os
+import cv2 as cv
 
 
 class Gestures(Node):
     def __init__(self):
         super().__init__('gesture_fsm')
 
-        # Publishers
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel_mod', 10)
+        # Publisher: command the base
+        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.last_saved_ms = 0
 
-        # Subscribers
+        # Subscriber: recognized gesture string
         self.gesture_sub = self.create_subscription(
             String,
             'gesture',
             self.gesture_cb,
             10
         )
-       
 
-        self.cmd_vel_sub = self.create_subscription(
-            Twist,
-            'cmd_vel',
-            self.cmd_vel_cb,
-            10
-        )
+        # Persistent command we keep streaming
+        self.cmd = Twist()
 
-        # Store latest velocity
-        self.current_vel = Twist()
+        # Neato / diff-drive drivers usually need a steady cmd_vel stream
+        self.timer = self.create_timer(0.05, self._tick)  # 20 Hz
 
-        self.get_logger().info("Gesture FSM node started")
+        self.wiggle_active = False
+        self.wiggle_step = 0
+        self.wiggle_deadline_ns = 0
+        self.saved_linear = 0.0
 
-    # ---------------- Callbacks ---------------- #
 
-    def cmd_vel_cb(self, msg: Twist):
-        """Store the most recent velocity command"""
-        self.current_vel = msg
+        self.ang_vel = 0.3
+        self.duration_s = (50 * math.pi / 180.0) / self.ang_vel  # time for 50 degrees
+
+
+        #  self.get_logger().info("Gesture FSM node started (streaming cmd_vel @ 20 Hz)")
+
+    def _publish_cmd(self):
+        """Continuously publish the latest desired command."""
+        self.vel_pub.publish(self.cmd)
 
     def gesture_cb(self, msg: String):
-        """React to gestures"""
-        gesture = msg.data
-        print("reaching gesture")
+        """React to gestures."""
+        raw = msg.data
+        g = raw.strip().lower().replace("_", " ")
 
-        if gesture == "Thumbs Up":
-            print('speeding up')
+        self.get_logger().info(f"gesture raw={raw!r} normalized={g!r}")
+
+        if g in ("thumbs up", "thumb up"):
+            self.get_logger().info("speeding up")
             self.speed_up()
-        elif gesture == "Thumbs Down":
+        elif g in ("thumbs down", "thumb down"):
+            self.get_logger().info("slowing down")
             self.slow_down()
-        elif gesture == "Victory":
-            self.wiggle()
+        elif g in ("victory", "peace", "v sign"):
+            self.get_logger().info("wiggling")
+            self.start_wiggle()
+        else:
+            self.get_logger().warn(f"unrecognized gesture: {raw!r}")
+    
+    def _tick(self):
+        """Runs at 20 Hz: update wiggle + publish."""
+        if self.wiggle_active:
+            self._advance_wiggle()
+
+        self.vel_pub.publish(self.cmd)
 
     # ---------------- Actions ---------------- #
 
     def speed_up(self):
-        mod = Twist()
-        mod.linear.x = min(self.current_vel.linear.x + 0.05, 0.3)
-        self.vel_pub.publish(mod)
+        # increase forward speed, cap at 0.3 m/s
+        self.cmd.linear.x = min(self.cmd.linear.x + 0.1, 0.3)
+        # optional: stop turning when changing speed
+        self.cmd.angular.z = 0.0
+        
+        
 
     def slow_down(self):
-        mod = Twist()
-        mod.linear.x = max(self.current_vel.linear.x - 0.05, 0.0)
-        self.vel_pub.publish(mod)
+        # decrease forward speed, floor at 0
+        self.cmd.linear.x = max(self.cmd.linear.x - 0.005, 0.0)
+        self.cmd.angular.z = 0.0
+        
+        
+    def start_wiggle(self):
+        if self.wiggle_active:
+            return  # ignore retriggers while wiggling
 
-    def wiggle(self):
-        mod = Twist()
-        ang_vel = 0.3
-        duration = (50 * math.pi / 180) / ang_vel  # 50 degrees
+        self.get_logger().info("Starting wiggle")
+        self.wiggle_active = True
+        self.wiggle_step = 0
+        self.saved_linear = self.cmd.linear.x
 
-        for _ in range(4):
-            mod.angular.z = ang_vel
-            self.vel_pub.publish(mod)
-            sleep(duration)
+        # start immediately
+        self.wiggle_deadline_ns = self.get_clock().now().nanoseconds
 
-            mod.angular.z = -ang_vel
-            self.vel_pub.publish(mod)
-            sleep(duration)
+    def _advance_wiggle(self):
+        now_ns = self.get_clock().now().nanoseconds
+        if now_ns < self.wiggle_deadline_ns:
+            return
 
-        # stop rotation
-        mod.angular.z = 0.0
-        self.vel_pub.publish(mod)
+        # Each step lasts duration_s. Pattern: +, -, +, -, +, -, +, -, stop
+        if self.wiggle_step < 8:
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = self.ang_vel if (self.wiggle_step % 2 == 0) else -self.ang_vel
+            self.wiggle_step += 1
+            self.wiggle_deadline_ns = now_ns + int(self.duration_s * 1e9)
+        else:
+            # done
+            self.cmd.angular.z = 0.0
+            self.cmd.linear.x = self.saved_linear
+            self.wiggle_active = False
+            self.get_logger().info("Wiggle complete")
 
-
-# ---------------- Main ---------------- #
 
 def main():
     rclpy.init()
-    print("starting FSM")
     node = Gestures()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
-    
 
 
 if __name__ == '__main__':
     main()
-
-
 
 
 

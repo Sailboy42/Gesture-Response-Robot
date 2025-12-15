@@ -4,6 +4,7 @@ import cv2 as cv
 import numpy as np
 import mediapipe as mp
 from mediapipe.tasks.python.core.base_options import BaseOptions
+from Gesture_neato.take_picture import save_fist
 
 import rclpy
 from rclpy.node import Node
@@ -56,7 +57,6 @@ class GestureRecognizerNode(Node):
 
 
 
-
         self.first_frame = False
         self.get_logger().info('Gesture recognizer node started. Listening on /camera/image/raw')
 
@@ -83,6 +83,10 @@ class GestureRecognizerNode(Node):
             name = category.category_name
         else:
             name = ""
+        print(name)
+
+        if name == "Closed_Fist":
+            save_fist(output_image=output_image, timestamp_ms=timestamp_ms)
 
         # publish a real string
         self.gespub.publish(String(data=name))
@@ -141,3 +145,7 @@ def main():
 
 if __name__ == '__main__':
     print(main())  
+
+
+
+
