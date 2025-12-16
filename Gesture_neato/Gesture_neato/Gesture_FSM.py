@@ -2,8 +2,8 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
-from geometry_msgs.msg import Twist
-from time import sleep
+from geometry_msgs.msg import Twist, PointStamped
+from time import sleep, time
 import math
 import os
 import cv2 as cv
@@ -22,6 +22,11 @@ class Gestures(Node):
             String, "gesture", self.gesture_cb, 10
         )
 
+        # Person tracker subscription
+        self.person_tracker_sub = self.create_subscription(
+            PointStamped, "/human_tracker/position", self.person_tracker_cb, 10
+        )
+
         # Persistent command we keep streaming
         self.cmd = Twist()
 
@@ -35,6 +40,13 @@ class Gestures(Node):
 
         self.ang_vel = 0.3
         self.duration_s = (50 * math.pi / 180.0) / self.ang_vel  # time for 50 degrees
+
+        # Person tracking state
+        self.person_visible = False
+        self.person_angle = 0.0
+        self.last_tracker_update = 0.0
+        self.following_mode = False
+        self.tracker_timeout = 0.5  # seconds
 
         #  self.get_logger().info("Gesture FSM node started (streaming cmd_vel @ 20 Hz)")
 
@@ -57,17 +69,35 @@ class Gestures(Node):
             # elif g in ("thumbs down", "thumb down"):
             self.get_logger().info("slowing down")
             self.slow_down()
-        elif g in ("rock", "iloveyou", "middle_finger"):
+        elif g in ("rock", "middle_finger"):
             # elif g in ("victory", "peace", "v sign"):
             self.get_logger().info("wiggling")
             self.start_wiggle()
+        elif g in ("iloveyou"):
+            # Toggle person following mode
+            self.following_mode = not self.following_mode
+            if self.following_mode:
+                self.get_logger().info("Person following mode: ON")
+            else:
+                self.get_logger().info("Person following mode: OFF")
+                # Stop robot when turning off following
+                self.cmd.linear.x = 0.0
+                self.cmd.angular.z = 0.0
         else:
             self.get_logger().warn(f"unrecognized gesture: {raw!r}")
+
+    def person_tracker_cb(self, msg: PointStamped):
+        """Callback for person tracker position updates"""
+        self.person_visible = True
+        self.person_angle = msg.point.z  # Angle in radians
+        self.last_tracker_update = time.time()
 
     def _tick(self):
         """Runs at 20 Hz: update wiggle + publish."""
         if self.wiggle_active:
             self._advance_wiggle()
+        elif self.following_mode:
+            self._update_person_follow()
 
         self.vel_pub.publish(self.cmd)
 
@@ -115,6 +145,36 @@ class Gestures(Node):
             self.cmd.linear.x = self.saved_linear
             self.wiggle_active = False
             self.get_logger().info("Wiggle complete")
+
+    def _update_person_follow(self):
+        """Update person following behavior (called from _tick)"""
+        # Check if tracker data is stale
+        current_time = time.time()
+        if current_time - self.last_tracker_update > self.tracker_timeout:
+            self.person_visible = False
+
+        if self.person_visible:
+            # Person is detected - follow them
+            max_angular_speed = 0.5  # rad/s
+            max_linear_speed = 0.2  # m/s
+
+            # Proportional control for angular velocity
+            angular_kp = 1.0
+            angular_vel = angular_kp * self.person_angle
+            angular_vel = max(-max_angular_speed, min(max_angular_speed, angular_vel))
+
+            # Move forward if person is roughly centered (angle < ~11 degrees)
+            if abs(self.person_angle) < 0.2:
+                self.cmd.linear.x = max_linear_speed
+            else:
+                # Turn first, then move forward at reduced speed
+                self.cmd.linear.x = max_linear_speed * 0.5
+
+            self.cmd.angular.z = angular_vel
+        else:
+            # Person lost - stop and search (slow rotation)
+            self.cmd.linear.x = 0.0
+            self.cmd.angular.z = 0.3  # Slow rotation to search for person
 
 
 def main():
