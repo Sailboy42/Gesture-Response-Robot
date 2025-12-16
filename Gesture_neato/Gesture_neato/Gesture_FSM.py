@@ -1,36 +1,39 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
-from geometry_msgs.msg import Twist
-from time import sleep
+from geometry_msgs.msg import Twist, PointStamped
+from time import sleep, time
 import math
 
 
 class Gestures(Node):
     def __init__(self):
-        super().__init__('gesture_fsm')
+        super().__init__("gesture_fsm")
 
         # Publishers
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel_mod', 10)
+        self.vel_pub = self.create_publisher(Twist, "cmd_vel_mod", 10)
 
         # Subscribers
         self.gesture_sub = self.create_subscription(
-            String,
-            'gesture',
-            self.gesture_cb,
-            10
+            String, "gesture", self.gesture_cb, 10
         )
-       
 
         self.cmd_vel_sub = self.create_subscription(
-            Twist,
-            'cmd_vel',
-            self.cmd_vel_cb,
-            10
+            Twist, "cmd_vel", self.cmd_vel_cb, 10
         )
 
         # Store latest velocity
         self.current_vel = Twist()
+
+        # Person tracking
+        self.person_tracker_sub = self.create_subscription(
+            PointStamped, "/human_tracker/position", self.person_tracker_cb, 10
+        )
+        self.person_visible = False
+        self.person_angle = 0.0
+        self.last_tracker_update = 0.0
+        self.following_mode = False
+        self.create_timer(0.1, self.follow_person_loop)
 
         self.get_logger().info("Gesture FSM node started")
 
@@ -40,18 +43,27 @@ class Gestures(Node):
         """Store the most recent velocity command"""
         self.current_vel = msg
 
+    def person_tracker_cb(self, msg: PointStamped):
+        """Callback for person tracker position updates"""
+        self.person_visible = True
+        self.person_angle = msg.point.z
+        self.last_tracker_update = time.time()
+
     def gesture_cb(self, msg: String):
         """React to gestures"""
         gesture = msg.data
         print("reaching gesture")
 
         if gesture == "Thumbs Up":
-            print('speeding up')
+            print("speeding up")
             self.speed_up()
         elif gesture == "Thumbs Down":
             self.slow_down()
         elif gesture == "Victory":
             self.wiggle()
+        elif gesture == "I_Love_You" or gesture == "ILoveYou":
+            self.following_mode = not self.following_mode
+            print(f"Following mode: {'ON' if self.following_mode else 'OFF'}")
 
     # ---------------- Actions ---------------- #
 
@@ -83,8 +95,26 @@ class Gestures(Node):
         mod.angular.z = 0.0
         self.vel_pub.publish(mod)
 
+    def follow_person_loop(self):
+        """Continuous loop for person following"""
+        if not self.following_mode:
+            return
+        if time.time() - self.last_tracker_update > 0.5:
+            self.person_visible = False
+        mod = Twist()
+        if self.person_visible:
+            angular_kp = 1.0
+            angular_vel = max(-0.5, min(0.5, angular_kp * self.person_angle))
+            mod.linear.x = 0.2 if abs(self.person_angle) < 0.2 else 0.1
+            mod.angular.z = angular_vel
+        else:
+            mod.linear.x = 0.0
+            mod.angular.z = 0.3
+        self.vel_pub.publish(mod)
+
 
 # ---------------- Main ---------------- #
+
 
 def main():
     rclpy.init()
@@ -93,70 +123,10 @@ def main():
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
-    
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # import Gesture_neato.Gesture_neato.gest_recog_camera as gest_recog_camera
@@ -189,7 +159,6 @@ if __name__ == '__main__':
 #             self.wiggle(msg=self.velread)
 
 
-    
 #     def speed_up(self, msg):
 #         mod = Twist()
 #         mod.linear.x = msg.linear.x + 0.5
@@ -203,7 +172,7 @@ if __name__ == '__main__':
 #            if mod.linear.x < 0: # min neato speed
 #                mod.linear.x = 0.0
 #            self.velpub.publish(mod)
-           
+
 #     def wiggle(self, msg):
 #         mod = Twist()
 #         for i in list(range(1,5)):
