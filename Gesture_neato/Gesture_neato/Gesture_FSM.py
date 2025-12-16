@@ -11,18 +11,15 @@ import cv2 as cv
 
 class Gestures(Node):
     def __init__(self):
-        super().__init__('gesture_fsm')
+        super().__init__("gesture_fsm")
 
         # Publisher: command the base
-        self.vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self.vel_pub = self.create_publisher(Twist, "cmd_vel", 10)
         self.last_saved_ms = 0
 
         # Subscriber: recognized gesture string
         self.gesture_sub = self.create_subscription(
-            String,
-            'gesture',
-            self.gesture_cb,
-            10
+            String, "gesture", self.gesture_cb, 10
         )
 
         # Persistent command we keep streaming
@@ -36,10 +33,8 @@ class Gestures(Node):
         self.wiggle_deadline_ns = 0
         self.saved_linear = 0.0
 
-
         self.ang_vel = 0.3
         self.duration_s = (50 * math.pi / 180.0) / self.ang_vel  # time for 50 degrees
-
 
         #  self.get_logger().info("Gesture FSM node started (streaming cmd_vel @ 20 Hz)")
 
@@ -54,18 +49,21 @@ class Gestures(Node):
 
         self.get_logger().info(f"gesture raw={raw!r} normalized={g!r}")
 
-        if g in ("thumbs up", "thumb up"):
+        if g in ("like", "like"):
+            # if g in ("thumbs up", "thumb up"):
             self.get_logger().info("speeding up")
             self.speed_up()
-        elif g in ("thumbs down", "thumb down"):
+        elif g in ("dislike", "dislike"):
+            # elif g in ("thumbs down", "thumb down"):
             self.get_logger().info("slowing down")
             self.slow_down()
-        elif g in ("victory", "peace", "v sign"):
+        elif g in ("rock", "iloveyou", "middle_finger"):
+            # elif g in ("victory", "peace", "v sign"):
             self.get_logger().info("wiggling")
             self.start_wiggle()
         else:
             self.get_logger().warn(f"unrecognized gesture: {raw!r}")
-    
+
     def _tick(self):
         """Runs at 20 Hz: update wiggle + publish."""
         if self.wiggle_active:
@@ -80,15 +78,12 @@ class Gestures(Node):
         self.cmd.linear.x = min(self.cmd.linear.x + 0.1, 0.3)
         # optional: stop turning when changing speed
         self.cmd.angular.z = 0.0
-        
-        
 
     def slow_down(self):
         # decrease forward speed, floor at 0
         self.cmd.linear.x = max(self.cmd.linear.x - 0.005, 0.0)
         self.cmd.angular.z = 0.0
-        
-        
+
     def start_wiggle(self):
         if self.wiggle_active:
             return  # ignore retriggers while wiggling
@@ -109,7 +104,9 @@ class Gestures(Node):
         # Each step lasts duration_s. Pattern: +, -, +, -, +, -, +, -, stop
         if self.wiggle_step < 8:
             self.cmd.linear.x = 0.0
-            self.cmd.angular.z = self.ang_vel if (self.wiggle_step % 2 == 0) else -self.ang_vel
+            self.cmd.angular.z = (
+                self.ang_vel if (self.wiggle_step % 2 == 0) else -self.ang_vel
+            )
             self.wiggle_step += 1
             self.wiggle_deadline_ns = now_ns + int(self.duration_s * 1e9)
         else:
@@ -128,65 +125,8 @@ def main():
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # import Gesture_neato.Gesture_neato.gest_recog_camera as gest_recog_camera
@@ -219,7 +159,6 @@ if __name__ == '__main__':
 #             self.wiggle(msg=self.velread)
 
 
-    
 #     def speed_up(self, msg):
 #         mod = Twist()
 #         mod.linear.x = msg.linear.x + 0.5
@@ -233,7 +172,7 @@ if __name__ == '__main__':
 #            if mod.linear.x < 0: # min neato speed
 #                mod.linear.x = 0.0
 #            self.velpub.publish(mod)
-           
+
 #     def wiggle(self, msg):
 #         mod = Twist()
 #         for i in list(range(1,5)):
