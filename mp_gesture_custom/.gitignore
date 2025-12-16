@@ -1,2 +1,7 @@
 gesture_dataset/
 dataset_balanced/
+gesture_dataset_middle_finger_proccessed/
+sign_language_dataset/
+middle_finger_dataset/
+hagrid_30k_mod/
+mediapipe-samples/
