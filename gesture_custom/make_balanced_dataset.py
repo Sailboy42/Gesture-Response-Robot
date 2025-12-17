@@ -1,9 +1,13 @@
 """
 Create a balanced dataset from an imbalanced gesture image dataset.
-Creates symbolic links (or copies if symlinks not supported) to a new output directory.
-Adjusts the number of samples per class to achieve balance, with special handling for the "none" class.
-Requires the source dataset to be organized in subfolders per class label.
+Creates symbolic links (or copies if symlinks not supported)
+to a new output directory.
+Adjusts the number of samples per class to achieve balance,
+with special handling for the "none" class.
+Requires the source dataset to be organized in
+subfolders per class label.
 """
+
 import os
 import random
 import shutil
@@ -11,6 +15,7 @@ from pathlib import Path
 from collections import Counter
 
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
+
 
 def list_images(label_dir: Path):
     """
@@ -58,20 +63,26 @@ def main(
     Main function to create a balanced dataset.
     Args:
         src_root: Path to the source dataset root directory.
-        out_root: Path to the output balanced dataset root directory.
+        out_root: Path to the output balanced dataset root
+                  directory.
         seed: Random seed for reproducibility.
-        max_per_non_none: Maximum number of samples per non-"none" class.
-        none_cap_ratio_vs_median: Cap for "none" class samples as a ratio of the median non-"none" class count.
-        iloveyou_min_target: Minimum target samples for the "iloveyou" class.
+        max_per_non_none: Maximum number of samples per
+                          non-"none" class.
+        none_cap_ratio_vs_median: Cap for "none" class samples
+                                  as a ratio of the median
+                                  non-"none" class count.
+        iloveyou_min_target: Minimum target samples for the
+                             "iloveyou" class.
     Raises:
-        ValueError: If the source dataset is not organized in the expected format.
+        ValueError: If the source dataset is not organized in
+                    the expected format.
     """
     random.seed(seed)
     src_root = Path(src_root)
     out_root = Path(out_root)
 
     labels = sorted([d.name for d in src_root.iterdir() if d.is_dir()])
-    if not any(l.lower() == "none" for l in labels):
+    if not any(label.lower() == "none" for label in labels):
         raise ValueError("Missing required 'none' label folder.")
 
     # Load file lists
@@ -86,18 +97,34 @@ def main(
     print("Raw counts:", counts)
 
     # Compute target counts
-    non_none_counts = [counts[l] for l in labels if l.lower() != "none" and counts[l] > 0]
-    median_non_none = sorted(non_none_counts)[len(non_none_counts)//2] if non_none_counts else 0
-    none_label = next(l for l in labels if l.lower() == "none")
+    non_none_counts = [
+        counts[label]
+        for label in labels
+        if label.lower() != "none" and counts[label] > 0
+    ]
+    median_non_none = (
+        sorted(non_none_counts)[len(non_none_counts) // 2] if non_none_counts else 0
+    )
+    none_label = next(label for label in labels if label.lower() == "none")
 
     targets = {}
-    for l in labels:
-        if l.lower() == "none":
-            targets[l] = int(min(counts[l], max(1, round(median_non_none * none_cap_ratio_vs_median))))
-        elif l.lower() == "iloveyou":
-            targets[l] = int(max(min(counts[l], max_per_non_none), min(iloveyou_min_target, max_per_non_none)))
+    for label in labels:
+        if label.lower() == "none":
+            targets[label] = int(
+                min(
+                    counts[label],
+                    max(1, round(median_non_none * none_cap_ratio_vs_median)),
+                )
+            )
+        elif label.lower() == "iloveyou":
+            targets[label] = int(
+                max(
+                    min(counts[label], max_per_non_none),
+                    min(iloveyou_min_target, max_per_non_none),
+                )
+            )
         else:
-            targets[l] = int(min(counts[l], max_per_non_none))
+            targets[label] = int(min(counts[label], max_per_non_none))
 
     print("Target counts:", targets)
 
@@ -134,6 +161,7 @@ def main(
         final[label] = len(list_images(out_root / label))
     print("Balanced counts:", final)
     print(f"Done. Output dataset: {out_root.resolve()}")
+
 
 if __name__ == "__main__":
     main()

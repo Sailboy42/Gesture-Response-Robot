@@ -1,8 +1,11 @@
 """
-Augment images in the "iloveyou" gesture class to reach a target number of images.
-Applies random transformations such as rotation, scaling, brightness/contrast adjustment,
-blur, noise, cutout, and optional horizontal flipping.
+Augment images in the "iloveyou" gesture class to reach
+a target number of images.
+Applies random transformations such as rotation, scaling,
+brightness/contrast adjustment, blur, noise, cutout,
+and optional horizontal flipping.
 """
+
 import argparse
 import random
 from pathlib import Path
@@ -11,6 +14,7 @@ import cv2
 import numpy as np
 
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
+
 
 def list_images(d: Path):
     """
@@ -21,6 +25,7 @@ def list_images(d: Path):
         List of image file paths.
     """
     return [p for p in d.rglob("*") if p.is_file() and p.suffix.lower() in IMG_EXTS]
+
 
 def imread_any(path: Path):
     """
@@ -37,6 +42,7 @@ def imread_any(path: Path):
         raise ValueError(f"Failed to read: {path}")
     return img
 
+
 def clamp01(x):
     """
     Clamp a value to the range [0, 1].
@@ -47,9 +53,11 @@ def clamp01(x):
     """
     return max(0.0, min(1.0, x))
 
+
 def random_affine(img, rng: random.Random):
     """
-    Apply a random affine transformation (rotation, scaling, translation) to the image.
+    Apply a random affine transformation
+    (rotation, scaling, translation) to the image.
     Args:
         img: Input image as a NumPy array.
         rng: Random number generator.
@@ -59,9 +67,9 @@ def random_affine(img, rng: random.Random):
     h, w = img.shape[:2]
 
     # gentle ranges
-    angle = rng.uniform(-12, 12)              # degrees
+    angle = rng.uniform(-12, 12)  # degrees
     scale = rng.uniform(0.90, 1.10)
-    tx = rng.uniform(-0.06, 0.06) * w         # pixels
+    tx = rng.uniform(-0.06, 0.06) * w  # pixels
     ty = rng.uniform(-0.06, 0.06) * h
 
     center = (w / 2.0, h / 2.0)
@@ -70,11 +78,10 @@ def random_affine(img, rng: random.Random):
     M[1, 2] += ty
 
     out = cv2.warpAffine(
-        img, M, (w, h),
-        flags=cv2.INTER_LINEAR,
-        borderMode=cv2.BORDER_REFLECT_101
+        img, M, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101
     )
     return out
+
 
 def random_brightness_contrast(img, rng: random.Random):
     """
@@ -87,9 +94,10 @@ def random_brightness_contrast(img, rng: random.Random):
     """
     # brightness/contrast jitter
     alpha = rng.uniform(0.85, 1.20)  # contrast
-    beta = rng.uniform(-20, 20)      # brightness
+    beta = rng.uniform(-20, 20)  # brightness
     out = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
     return out
+
 
 def random_blur_noise(img, rng: random.Random):
     """
@@ -116,6 +124,7 @@ def random_blur_noise(img, rng: random.Random):
 
     return out
 
+
 def random_cutout(img, rng: random.Random):
     """
     Apply random cutout (occlusion) to the image.
@@ -137,8 +146,9 @@ def random_cutout(img, rng: random.Random):
     out = img.copy()
     # fill with mean-ish color
     mean_color = [int(x) for x in out.mean(axis=(0, 1))]
-    out[y0:y0+patch_h, x0:x0+patch_w] = mean_color
+    out[y0 : y0 + patch_h, x0 : x0 + patch_w] = mean_color
     return out
+
 
 def maybe_flip(img, rng: random.Random, allow_flip: bool):
     """
@@ -154,6 +164,7 @@ def maybe_flip(img, rng: random.Random, allow_flip: bool):
     if allow_flip and rng.random() < 0.35:
         return cv2.flip(img, 1)
     return img
+
 
 def augment_one(img, rng: random.Random, allow_flip: bool):
     """
@@ -173,6 +184,7 @@ def augment_one(img, rng: random.Random, allow_flip: bool):
     out = maybe_flip(out, rng, allow_flip)
     return out
 
+
 def save_jpg(path: Path, img):
     """
     Save an image as a JPEG file.
@@ -189,6 +201,7 @@ def save_jpg(path: Path, img):
     if not ok:
         raise ValueError(f"Failed to write: {path}")
 
+
 def main():
     """
     Main function to run the augmentation process.
@@ -200,9 +213,15 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src_iloveyou", required=True, help="gestue_dataset/iloveyou")
     ap.add_argument("--dst_iloveyou", required=True, help="dataset_balanced/iloveyou")
-    ap.add_argument("--target", type=int, default=2500, help="Total images to end up with")
+    ap.add_argument(
+        "--target", type=int, default=2500, help="Total images to end up with"
+    )
     ap.add_argument("--seed", type=int, default=42)
-    ap.add_argument("--allow_flip", action="store_true", help="Enable horizontal flips (off by default)")
+    ap.add_argument(
+        "--allow_flip",
+        action="store_true",
+        help="Enable horizontal flips (off by default)",
+    )
     args = ap.parse_args()
 
     rng = random.Random(args.seed)
@@ -222,7 +241,10 @@ def main():
 
     # 1) copy originals first
     originals_to_copy = min(len(src_imgs), args.target)
-    chosen_originals = rng.sample(src_imgs, originals_to_copy) if originals_to_copy < len(src_imgs) else list(src_imgs)
+    if originals_to_copy < len(src_imgs):
+        chosen_originals = rng.sample(src_imgs, originals_to_copy)
+    else:
+        chosen_originals = list(src_imgs)
 
     count = 0
     for p in chosen_originals:
@@ -241,6 +263,7 @@ def main():
         count += 1
 
     print(f"Done. Wrote {count} images to: {dst.resolve()}")
+
 
 if __name__ == "__main__":
     main()

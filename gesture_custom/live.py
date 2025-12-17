@@ -7,6 +7,7 @@ import time
 import cv2
 import mediapipe as mp
 
+
 def main():
     """
     Main function to run live gesture recognition from webcam.
@@ -32,7 +33,9 @@ def main():
              timestamp_ms: Timestamp of the frame in milliseconds.
          """
         # result.gestures is a list per hand; each is a list of Category
-        if result.gestures and len(result.gestures) > 0 and len(result.gestures[0]) > 0:
+        if result.gestures and len(
+                result.gestures) > 0 and len(
+                result.gestures[0]) > 0:
             top = result.gestures[0][0]
             latest_result["text"] = f"{top.category_name} ({top.score:.2f})"
         else:
@@ -61,7 +64,9 @@ def main():
 
             # Convert to RGB for MediaPipe Image
             frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame_rgb)
+            mp_image = mp.Image(
+                image_format=mp.ImageFormat.SRGB,
+                data=frame_rgb)
 
             timestamp_ms = int(time.time() * 1000)
             recognizer.recognize_async(mp_image, timestamp_ms)
@@ -78,6 +83,7 @@ def main():
 
     cap.release()
     cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()

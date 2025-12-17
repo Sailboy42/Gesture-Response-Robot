@@ -22,7 +22,7 @@ def print_result(result, output_image, timestamp_ms):
         
 
 # This is where the MediaPipe model lives on my laptop, download the task and change per person
-model_path = '/home/bhargavi/Downloads/gesture_recognizer.task'
+model_path = '../../gesture_custom/exported_model/gesture_recognizer.task'
 
 
 # Initializing the model and starting the standard options for live streaming video

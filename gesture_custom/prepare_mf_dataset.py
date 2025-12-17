@@ -1,8 +1,11 @@
 """
-Prepare a gesture recognition dataset from the 'offensive gesture.v1i.darknet' dataset.
-Filters for 'middle finger' as positive examples and 'L' gesture as negative examples.
+Prepare a gesture recognition dataset from the
+'offensive gesture.v1i.darknet' dataset.
+Filters for 'middle finger' as positive examples and
+'L' gesture as negative examples.
 Excludes 'rock' gesture images entirely.
-Saves the prepared dataset in a structure compatible with MediaPipe Model Maker.
+Saves the prepared dataset in a structure compatible with
+MediaPipe Model Maker.
 Requires the original dataset to be downloaded and extracted.
 Uses:
 - offensive gesture.v1i.darknet/train/
@@ -50,7 +53,7 @@ for split in splits:
             continue
 
         with open(label_path, "r") as f:
-            lines = [l.strip() for l in f if l.strip()]
+            lines = [line.strip() for line in f if line.strip()]
 
         if not lines:
             continue
@@ -62,7 +65,7 @@ for split in splits:
             try:
                 cid = int(parts[0])
                 class_ids.add(cid)
-            except:
+            except BaseException:
                 continue
 
         # --- Filtering rules ---

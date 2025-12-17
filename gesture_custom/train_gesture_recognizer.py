@@ -3,12 +3,15 @@ Train a gesture recognizer model using MediaPipe Model Maker.
 Saves the trained model as a .task bundle for use with MediaPipe.
 Requires a prepared dataset.
 Set enviromnment variables to customize paths:
-  GESTURE_DATASET_DIR : path to dataset root (default: ./gesture_dataset)
-  GESTURE_EXPORT_DIR  : path to export trained model (default: ./exported_model)
+  GESTURE_DATASET_DIR : path to dataset root
+                        (default: ./gesture_dataset)
+  GESTURE_EXPORT_DIR  : path to export trained model
+                        (default: ./exported_model)
 """
 
 import os
 from mediapipe_model_maker import gesture_recognizer
+
 
 def assert_dataset_ok(dataset_dir: str) -> None:
     """
@@ -17,15 +20,19 @@ def assert_dataset_ok(dataset_dir: str) -> None:
         dataset_dir: Path to the dataset directory.
     Raises:
         FileNotFoundError: If the dataset directory does not exist.
-        ValueError: If no label subfolders are found or if 'none' label folder is missing.
+        ValueError: If no label subfolders are found or if
+                    'none' label folder is missing.
     """
     if not os.path.isdir(dataset_dir):
         raise FileNotFoundError(f"Dataset dir not found: {dataset_dir}")
 
-    labels = sorted([
-        d for d in os.listdir(dataset_dir)
-        if os.path.isdir(os.path.join(dataset_dir, d))
-    ])
+    labels = sorted(
+        [
+            d
+            for d in os.listdir(dataset_dir)
+            if os.path.isdir(os.path.join(dataset_dir, d))
+        ]
+    )
     if not labels:
         raise ValueError(f"No label subfolders found in: {dataset_dir}")
 
@@ -37,11 +44,14 @@ def assert_dataset_ok(dataset_dir: str) -> None:
     print(f"Found {len(labels)} labels:")
     print("  " + ", ".join(labels))
 
+
 def main():
     """
     Main function to train the gesture recognizer model.
-    Sets up dataset paths, trains the model, evaluates it, and exports the trained model.
-    1) Load dataset (runs hand detection + extracts landmarks; images w/ no hands are omitted)
+    Sets up dataset paths, trains the model, evaluates it,
+    and exports the trained model.
+    1) Load dataset (runs hand detection + extracts landmarks;
+       images w/ no hands are omitted)
     2) Split: 80% train, 10% val, 10% test
     3) Train
     4) Evaluate
@@ -52,12 +62,15 @@ def main():
 
     assert_dataset_ok(dataset_dir)
 
-    # 1) Load dataset (runs hand detection + extracts landmarks; images w/ no hands are omitted)
-    # You can tune min_detection_confidence if too many samples are being dropped.
+    # 1) Load dataset (runs hand detection + extracts landmarks;
+    #    images w/ no hands are omitted)
+    # You can tune min_detection_confidence if too many samples
+    # are being dropped.
     data = gesture_recognizer.Dataset.from_folder(
         dirname=dataset_dir,
         hparams=gesture_recognizer.HandDataPreprocessingParams(
-            # shuffle=True is default in the notebook, but leaving default is fine.
+            # shuffle=True is default in the notebook, but leaving
+            # default is fine.
             # min_detection_confidence=0.5,
         ),
     )
@@ -96,9 +109,11 @@ def main():
     print(f"Test loss: {loss:.4f}  Test accuracy: {acc:.4f}")
 
     # 5) Export .task bundle for MediaPipe
-    model.export_model()  # saves to hparams.export_dir as gesture_recognizer.task
+    # saves to hparams.export_dir as gesture_recognizer.task
+    model.export_model()
     out_task = os.path.join(export_dir, "gesture_recognizer.task")
     print(f"Exported: {out_task}")
+
 
 if __name__ == "__main__":
     main()
