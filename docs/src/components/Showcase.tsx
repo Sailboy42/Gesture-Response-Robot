@@ -1,6 +1,8 @@
 import { Card } from "./ui/card";
 
 const Showcase = () => {
+  const baseUrl = import.meta.env.BASE_URL;
+  const videoSrc = `${baseUrl}videos/demo.mp4`;
   return (
     <section id="showcase" className="py-20 px-6 bg-muted/30">
       <div className="container mx-auto">
@@ -39,7 +41,7 @@ const Showcase = () => {
                 className="w-full h-full object-contain"
                 controls
               >
-                <source src="/videos/demo.mp4" type="video/mp4" />
+                <source src={videoSrc} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
