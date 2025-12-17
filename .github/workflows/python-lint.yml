@@ -1,0 +1,40 @@
+name: Python Linting
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: Install linting dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 autopep8
+      
+      - name: Run flake8 on gesture_custom
+        run: |
+          echo "Checking gesture_custom/ for PEP8 violations..."
+          flake8 --select=E,W --count --statistics gesture_custom/ || true
+      
+      - name: Run flake8 on all Python files
+        run: |
+          echo "Checking all Python files for PEP8 violations..."
+          flake8 --select=E,W --count --statistics --exclude=.git,__pycache__,build,dist,*.egg-info,.ipynb_checkpoints .
