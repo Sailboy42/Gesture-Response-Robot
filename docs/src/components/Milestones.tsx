@@ -31,52 +31,55 @@ const Milestones = () => {
     },
     {
       number: 2,
-      title: "Machine Vision Training & Action Programming",
-      date: "Week 2 - Planned",
-      description: "Next, we will analyze the hand contour to detect individual fingers and the hand center, enabling gesture recognition. We'll train machine vision algorithms to recognize specific gestures and map them to programmed Neato actions.",
+      title: "MediaPipe Integration & FSM Implementation",
+      date: "Week 2 - Completed",
+      description: "We implemented Google AI's MediaPipe Model to take live camera footage and recognize predetermined gestures. We began by using the computer webcam footage from the previous milestone and converting each frame into images in a format that could be received as input by the MediaPipe Model. We then adjusted the output of the model to give only the relevant output for our project—the gesture identified. After a few iterations, we were able to get the model to successfully detect and output the set of 7 gestures when an individual's hand was identified in frame. The gesture detected output serves as input and triggers for the Neato's finite state machine.",
       achievements: [
-        "Finger detection from hand contour analysis",
-        "Hand center point calculation",
-        "Gesture recognition algorithm for stop, circle, and snapshot motions",
-        "Gesture-to-action mapping system implementation",
-        "ROS action server configured for Neato commands",
-        "Initial Neato actions programmed and tested"
+        "Integrated PiCamera and long ribbon cable—both now work seamlessly with the gesture-analysis pipeline",
+        "Combined gesture analyzer and PiCamera code so gestures are correctly detected and passed into the FSM to trigger state changes",
+        "Successfully added functionality to capture and save an image to Downloads when fist gesture is recognized",
+        "Implemented Google AI's MediaPipe Model for gesture recognition",
+        "Converted webcam frames to MediaPipe-compatible image format",
+        "Model successfully detects and outputs 7 predetermined gestures",
+        "Gesture output integrated as triggers for Neato's finite state machine"
       ],
       challenges: [
-        "Accurately detecting individual fingers from contour data",
-        "Differentiating between similar hand poses",
-        "Handling variance in how people perform gestures",
-        "Balancing recognition speed vs. accuracy",
-        "Integrating gesture recognition with robot control"
+        "Converting video frames to MediaPipe-compatible format",
+        "Filtering model output to only relevant gesture data",
+        "Iterating on model parameters for reliable gesture detection",
+        "Synchronizing PiCamera feed with gesture analysis pipeline",
+        "Mapping gesture outputs to FSM state transitions"
       ],
-      goals: "⏳ Finger and center detection / ⏳ Gesture recognition working / ⏳ Neato responds to gestures"
+      goals: "✓ PiCamera integrated with pipeline / ✓ MediaPipe gesture recognition working / ✓ 7 gestures detected / ✓ FSM triggers functional"
     },
     {
       number: 3,
-      title: "Complete Integration, Obstacle Avoidance & Final Refinement",
-      date: "Week 3 - Planned",
-      description: "The final milestone will achieve full system integration with all gesture-controlled actions working reliably. We'll implement obstacle avoidance during all programmed actions, ensuring the Neato operates safely while executing gesture-triggered commands with acceptable recognition accuracy.",
+      title: "Full System Integration & Custom ML Development",
+      date: "Week 3 - Completed",
+      description: "The final milestone brought together all components into a cohesive ROS2 workspace. Bhar structured the entire file system into a ROS2 package with nodes, publishers, and subscribers enabling communication between the Pi camera, Neato, and MediaPipe model. Tabitha finalized the gest_camera_reg node integrating the camera feed with gesture analysis and implemented the take_photo function. Khoi developed a human-following feature using MediaPipe pose detection to track and follow humans via the 'iloveyou' ASL gesture—though deemed too finnicky for MVP, it's near completion. Owen trained a custom MediaPipe model using PyTorch in Google Colab to prove familiarity beyond the provided models.",
       achievements: [
-        "All Neato actions coded and operational (stop, spin, photo, follow)",
-        "Acceptable gesture recognition success rate",
-        "Obstacle avoidance integrated with all gesture actions",
-        "LIDAR data processing for real-time obstacle detection",
-        "Safe navigation during follow mode",
-        "Collision prevention during spin and movement",
-        "System integration and testing complete",
-        "Documentation and demo materials ready",
-        "Final demonstration prepared"
+        "ROS2 workspace fully structured with custom package, nodes, publishers, and subscribers",
+        "Camera detection node connecting MediaPipe ML model to Raspberry Pi camera operational",
+        "Gestures topic publisher broadcasting recognized gesture names to FSM",
+        "FSM node with gestures subscriber triggering Neato actions via cmd_vel topic",
+        "gest_camera_reg node integrating camera feed with gesture analyzer complete",
+        "take_photo function captures and saves images on gesture trigger",
+        "Human tracking using MediaPipe pose detection with landmark-based center calculation",
+        "Neato orientation logic for following detected human figures implemented",
+        "Custom MediaPipe model trained in Google Colab with PyTorch",
+        "Dataset conversion pipeline for MediaPipe intake completed",
+        "Website maintained and rubric compliance ensured"
       ],
       challenges: [
-        "Fine-tuning recognition thresholds for reliability",
-        "Balancing gesture response time with obstacle checking",
-        "Handling conflicting priorities (gesture command vs. safety)",
-        "Managing system performance with multiple components",
-        "Optimizing performance for real-time operation",
-        "Testing edge cases and failure modes",
-        "Polishing user experience for final demonstration"
+        "Publisher/subscriber interactions required extensive debugging",
+        "ROS2 package configuration issues with setup.py and node communication",
+        "Human-following feature too finnicky for final presentation, kept for future work",
+        "Sourcing proper datasets with thousands of examples for custom model training",
+        "Nearly pushed 50k file dataset to Git—learned importance of Git handling for large files",
+        "Balancing dataset size with accuracy and processing time tradeoffs",
+        "Tracing errors through interconnected ROS2 components to find root causes"
       ],
-      goals: "⏳ All Neato actions functional / ⏳ Obstacle avoidance integrated / ⏳ Complete system testing / ⏳ Project ready for demo"
+      goals: "✓ ROS2 workspace structured / ✓ All nodes communicating / ✓ Custom ML model trained / ✓ Human tracking developed / ✓ System demo ready"
     }
   ];
 

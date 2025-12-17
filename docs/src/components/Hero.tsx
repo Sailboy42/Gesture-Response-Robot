@@ -12,10 +12,10 @@ const Hero = () => {
           A Neato robot that reads hand gestures to perform functions—from following you to taking photos, all controlled with your hands
         </p>
         <div className="flex gap-3 justify-center flex-wrap text-sm mb-6">
+          <span className="px-3 py-1 bg-secondary rounded-full text-secondary-foreground font-medium">Tabitha</span>
+          <span className="px-3 py-1 bg-secondary rounded-full text-secondary-foreground font-medium">Bhar</span>
           <span className="px-3 py-1 bg-secondary rounded-full text-secondary-foreground font-medium">Khoi</span>
-          <span className="px-3 py-1 bg-secondary rounded-full text-secondary-foreground font-medium">Tabby</span>
           <span className="px-3 py-1 bg-secondary rounded-full text-secondary-foreground font-medium">Owen</span>
-          <span className="px-3 py-1 bg-secondary rounded-full text-secondary-foreground font-medium">Bhargavi</span>
         </div>
         <div className="flex gap-4 justify-center">
           <a 

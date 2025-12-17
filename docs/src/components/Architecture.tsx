@@ -14,24 +14,24 @@ const Architecture = () => {
           <Accordion type="single" collapsible className="space-y-4">
             <AccordionItem value="input" className="border border-border rounded-lg px-6 bg-card shadow-elevation">
               <AccordionTrigger className="text-xl font-semibold hover:text-primary">
-                1. Camera & ROS Integration
+                1. PiCamera & ROS2 Integration
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pt-4 space-y-4">
                 <div>
                   <h4 className="font-semibold text-foreground mb-2">Code Structure:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>External camera mounted and connected to laptop</li>
-                    <li>Camera feed published to ROS environment via image topics</li>
-                    <li>Real-time video streaming with frame synchronization</li>
-                    <li>Image preprocessing for gesture recognition pipeline</li>
+                    <li>Raspberry Pi camera with 1-meter ribbon cable connected to Neato</li>
+                    <li><code className="bg-muted px-1 rounded">gest_camera_reg</code> node integrates camera feed with gesture analyzer</li>
+                    <li>Camera feed brought up in rqt for visualization and debugging</li>
+                    <li>Backup webcam code for development when Neato unavailable</li>
                   </ul>
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground mb-2">Algorithms:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
                     <li>OpenCV video capture and frame processing</li>
-                    <li>ROS image transport for efficient data streaming</li>
-                    <li>Color space conversion and noise filtering</li>
+                    <li>Frame conversion to MediaPipe-compatible image format</li>
+                    <li>HSV color space filtering for skin detection (early development)</li>
                   </ul>
                 </div>
               </AccordionContent>
@@ -39,24 +39,24 @@ const Architecture = () => {
 
             <AccordionItem value="detection" className="border border-border rounded-lg px-6 bg-card shadow-elevation">
               <AccordionTrigger className="text-xl font-semibold hover:text-primary">
-                2. Machine Vision & Gesture Recognition
+                2. MediaPipe Gesture Recognition
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pt-4 space-y-4">
                 <div>
                   <h4 className="font-semibold text-foreground mb-2">Code Structure:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Machine vision training pipeline for gesture classification</li>
-                    <li>Gesture recognition node subscribed to camera feed</li>
-                    <li>Real-time gesture detection and validation</li>
-                    <li>Command publishing to Neato control node</li>
+                    <li>Google's MediaPipe ML model for hand gesture detection</li>
+                    <li>Camera detection node connecting MediaPipe to Raspberry Pi camera</li>
+                    <li>Publisher to <code className="bg-muted px-1 rounded">gestures</code> topic broadcasting recognized gesture names (String type)</li>
+                    <li>Custom PyTorch model trained in Google Colab for extended gesture vocabulary</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Algorithms:</h4>
+                  <h4 className="font-semibold text-foreground mb-2">Recognized Gestures (7 total):</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Hand detection and segmentation using computer vision</li>
-                    <li>Gesture differentiation through feature comparison</li>
-                    <li>Motion detection for dynamic gestures (circling, snapshot)</li>
+                    <li>Open palm, closed fist, pointing up, thumbs up/down</li>
+                    <li>"I love you" ASL sign for human-following mode</li>
+                    <li>Custom middle finger gesture (trained via PyTorch to prove MediaPipe familiarity)</li>
                     <li>Confidence thresholding to reduce false positives</li>
                   </ul>
                 </div>
@@ -65,25 +65,25 @@ const Architecture = () => {
 
             <AccordionItem value="features" className="border border-border rounded-lg px-6 bg-card shadow-elevation">
               <AccordionTrigger className="text-xl font-semibold hover:text-primary">
-                3. Path Planning & Navigation
+                3. Human Tracking & Following
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pt-4 space-y-4">
                 <div>
                   <h4 className="font-semibold text-foreground mb-2">Code Structure:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Command-based path planning system</li>
-                    <li>Person tracking and following behavior</li>
-                    <li>Obstacle avoidance integration during movement</li>
-                    <li>Velocity and angular control for Neato actions</li>
+                    <li>MediaPipe pose detection reformatted from hand to full human figure</li>
+                    <li>Visual landmarks: right/left hip, right/left shoulder for figure detection</li>
+                    <li>Center-of-figure calculation for each frame</li>
+                    <li>Neato orientation logic to drive toward detected human</li>
                   </ul>
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground mb-2">Algorithms:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Target tracking using visual servoing</li>
-                    <li>Potential field method for obstacle avoidance</li>
-                    <li>PID control for smooth movement execution</li>
-                    <li>Dynamic path replanning based on sensor feedback</li>
+                    <li>Pose landmark detection using MediaPipe pose model</li>
+                    <li>Bounding box center calculation from shoulder/hip landmarks</li>
+                    <li>Turn-then-drive approach: orient first, then move straight toward figure</li>
+                    <li><em>Note: Feature developed but deemed too finnicky for MVP presentation</em></li>
                   </ul>
                 </div>
               </AccordionContent>
@@ -91,25 +91,25 @@ const Architecture = () => {
 
             <AccordionItem value="classification" className="border border-border rounded-lg px-6 bg-card shadow-elevation">
               <AccordionTrigger className="text-xl font-semibold hover:text-primary">
-                4. Neato Action Controller
+                4. Finite State Machine & Neato Control
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pt-4 space-y-4">
                 <div>
                   <h4 className="font-semibold text-foreground mb-2">Code Structure:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>ROS node for Neato motor control</li>
-                    <li>Gesture-to-action mapping system</li>
-                    <li>State machine for managing robot behaviors</li>
-                    <li>Safety checks and emergency stop functionality</li>
+                    <li>FSM node with subscriber to <code className="bg-muted px-1 rounded">gestures</code> topic</li>
+                    <li>Gesture-to-action mapping triggers Neato movement</li>
+                    <li>Commands published to <code className="bg-muted px-1 rounded">cmd_vel</code> topic (Neato subscribed)</li>
+                    <li><code className="bg-muted px-1 rounded">take_photo</code> function captures and saves images to Downloads</li>
                   </ul>
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground mb-2">Implemented Actions:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li><strong>Stop gesture:</strong> Immediate halt of all movement</li>
-                    <li><strong>Circle gesture:</strong> Spin in place at controlled angular velocity</li>
-                    <li><strong>Snapshot gesture:</strong> Trigger camera to capture image</li>
-                    <li><strong>Follow mode:</strong> Track and follow detected person</li>
+                    <li><strong>Open palm:</strong> Immediate halt of all movement</li>
+                    <li><strong>Pointing gesture:</strong> Spin in place at controlled angular velocity</li>
+                    <li><strong>Fist gesture:</strong> Trigger camera to capture and save image</li>
+                    <li><strong>"I love you" ASL:</strong> Activate human-following mode</li>
                   </ul>
                 </div>
               </AccordionContent>
@@ -117,25 +117,25 @@ const Architecture = () => {
 
             <AccordionItem value="output" className="border border-border rounded-lg px-6 bg-card shadow-elevation">
               <AccordionTrigger className="text-xl font-semibold hover:text-primary">
-                5. Obstacle Avoidance & Safety
+                5. ROS2 Workspace Architecture
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pt-4 space-y-4">
                 <div>
                   <h4 className="font-semibold text-foreground mb-2">Code Structure:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>LIDAR sensor data processing</li>
-                    <li>Real-time obstacle detection during movement</li>
-                    <li>Integration with path planning for dynamic avoidance</li>
-                    <li>Safety override for gesture-controlled actions</li>
+                    <li>Custom ROS2 package with proper setup.py configuration</li>
+                    <li>Nodes for camera detection, gesture publishing, and FSM control</li>
+                    <li>Publishers/subscribers connecting Pi camera, Neato, Downloads folder, and MediaPipe</li>
+                    <li>Modular architecture allowing independent component development</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-foreground mb-2">Algorithms:</h4>
+                  <h4 className="font-semibold text-foreground mb-2">Communication Flow:</h4>
                   <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Proximity detection using LIDAR scan data</li>
-                    <li>Vector field histogram for local navigation</li>
-                    <li>Dynamic window approach for velocity planning</li>
-                    <li>Emergency stop triggers based on collision risk</li>
+                    <li>Camera node → MediaPipe → Gesture publisher → <code className="bg-muted px-1 rounded">gestures</code> topic</li>
+                    <li>FSM subscriber → Action logic → <code className="bg-muted px-1 rounded">cmd_vel</code> publisher → Neato</li>
+                    <li>Photo capture → Downloads folder save</li>
+                    <li>All components debuggable via ROS2 tools and rqt visualization</li>
                   </ul>
                 </div>
               </AccordionContent>
@@ -145,14 +145,15 @@ const Architecture = () => {
           <Card className="mt-12 p-8 shadow-elevation bg-gradient-to-br from-primary/5 to-accent/5 border-primary/20">
             <h3 className="text-2xl font-bold mb-4">System Integration</h3>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              All components are integrated through ROS (Robot Operating System), allowing modular communication between 
-              nodes. The camera feed flows through the gesture recognition pipeline, which publishes command messages to the 
-              Neato control node. The robot simultaneously processes LIDAR data for obstacle avoidance, ensuring safe execution 
-              of gesture-triggered actions.
+              All components are integrated through ROS2, with a custom package containing nodes, publishers, and subscribers 
+              for modular communication. The PiCamera feed flows through the <code className="bg-muted px-1 rounded">gest_camera_reg</code> node 
+              to MediaPipe, which publishes recognized gestures to the <code className="bg-muted px-1 rounded">gestures</code> topic. 
+              The FSM node subscribes to this topic and triggers Neato actions via the <code className="bg-muted px-1 rounded">cmd_vel</code> topic.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              The scalable architecture allows us to add new gestures incrementally. Each gesture can be developed and tested 
-              independently before integration into the full system, making the project highly iterable and expandable.
+              The modular ROS2 architecture allows each component to be developed and tested independently. We also demonstrated 
+              extensibility by training a custom PyTorch model in Google Colab, proving we understand MediaPipe beyond its provided models. 
+              The human-following feature using pose detection is near completion and can be integrated when reliability improves.
             </p>
           </Card>
         </div>

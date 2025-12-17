@@ -7,6 +7,7 @@ const Navigation = () => {
     { to: "#showcase", label: "Show It Off" },
     { to: "#architecture", label: "Architecture" },
     { to: "#milestones", label: "Milestones" },
+    { to: "#team", label: "Team" },
   ];
 
   return (
