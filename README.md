@@ -82,3 +82,10 @@ It contains a few randomly selected images per class and is **not**
 used for training.
 
 The full dataset is excluded due to size and licensing considerations.
+
+### Dataset Sources
+
+The gesture recognition model was trained on data from the following sources:
+
+- **Roboflow Offensive Gesture Dataset**: [https://universe.roboflow.com/comprobo/offensive-gesture-phknd](https://universe.roboflow.com/comprobo/offensive-gesture-phknd)
+- **HaGRID 30K Sample (Kaggle)**: [https://www.kaggle.com/datasets/innominate817/hagrid-sample-30k-384p](https://www.kaggle.com/datasets/innominate817/hagrid-sample-30k-384p)
